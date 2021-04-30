@@ -13,26 +13,50 @@ export default NextAuth({
     }),
   ],
   jwt: {
-    signingKey: process.env.JWT_SIGNIN_KEY,
+    signingKey: process.env.JWT_SIGNING_PRIVATE_KEY,
   },
   callbacks: {
     async signIn(user, account, profile) {
 
       try {
         await fauna.query(
-          q.Create(
-            q.Collection('users'),
-            {
-              data: {
-                name: user.name,
-                email: user.email
+          q.If(
+            q.Not(
+              q.Exists(
+                q.Match(
+                  q.Index('idx_user_email'),
+                  q.Casefold(user.email)
+                )
+              )
+            ),
+            q.Create(
+              q.Collection('users'),
+              {
+                data: {
+                  name: user.name,
+                  email: q.Casefold(user.email)
+                }
               }
-            }
+            ),
+            q.Update(
+              q.Select(['ref'], q.Get(
+                q.Match(
+                  q.Index('idx_user_email'),
+                  q.Casefold(user.email)
+                )
+              )),
+              {
+                data: {
+                  name: user.name
+                }
+              }
+            )
           )
         );
 
         return true;
-      } catch {
+      } catch (e) {
+        console.log(e);
         return false;
       }
 
