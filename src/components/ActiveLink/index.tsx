@@ -11,13 +11,15 @@ export function ActiveLink({ children, activeClassName, ...rest }: ActiveLinkPro
 
   const { asPath } = useRouter();
 
-  const className = (asPath === rest.href)
+  const className = asPath === rest.href
     ? activeClassName
     : '';
 
   return (
-    <Link {...rest} >
-      {cloneElement(children, { className })}
+    <Link {...rest}>
+      {cloneElement(children, {
+        className
+      })}
     </Link>
   )
 }
