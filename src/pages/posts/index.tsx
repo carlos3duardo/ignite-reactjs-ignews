@@ -19,7 +19,6 @@ type Post = {
 
 interface PostProps {
   posts: Post[]
-
 }
 
 export default function Posts({ posts }: PostProps) {
