@@ -1,3 +1,4 @@
+// import { buffer } from 'micro';
 import { NextApiRequest, NextApiResponse } from "next";
 import { Readable } from 'stream';
 import Stripe from "stripe";
@@ -36,8 +37,6 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
     const secret = request.headers['stripe-signature'];
 
-    console.log(request.headers);
-
     let event: Stripe.Event;
 
     try {
@@ -67,11 +66,13 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
             const checkoutSession = event.data.object as Stripe.Checkout.Session;
 
-            await saveSubscription(
-              checkoutSession.subscription.toString(),
-              checkoutSession.customer.toString(),
-              true
-            );
+            if (checkoutSession.subscription && checkoutSession.customer) {
+              await saveSubscription(
+                checkoutSession.subscription.toString(),
+                checkoutSession.customer.toString(),
+                true
+              );
+            }
 
             break;
           default:
@@ -84,7 +85,7 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
     }
 
     response.json({
-      message: 'Hello!'
+      received: true
     });
 
 
