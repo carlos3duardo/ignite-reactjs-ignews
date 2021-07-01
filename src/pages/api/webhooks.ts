@@ -36,6 +36,8 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
 
     const secret = request.headers['stripe-signature'];
 
+    console.log(request.headers);
+
     let event: Stripe.Event;
 
     try {
